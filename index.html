@@ -35,7 +35,6 @@
             background: #000;
         }
         canvas {
-            /* Changed background from #87CEEB (sky blue) to #000 (black) */
             background: #000;
             display: block;
             max-width: 100%;
@@ -72,22 +71,20 @@
             background: #ef4444;
             transition: width 0.3s ease;
         }
-        /* Controls returned to bottom positioning */
         .touch-controls {
             position: absolute;
-            bottom: calc(var(--safe-bottom) + 30px); padding: 0 25px;
-            left: calc(var(--safe-left) + 20px);
-            right: var(--safe-right);
-            width: calc(100% - var(--safe-left) - var(--safe-right));
+            bottom: calc(var(--safe-bottom) + 30px);
+            padding: 0 25px;
+            left: 0;
+            right: 0;
             display: none;
             justify-content: space-between;
             z-index: 100;
             pointer-events: none;
-
         }
         .btn {
-            width: 55px;
-            height: 55px;
+            width: 60px;
+            height: 60px;
             background: rgba(217, 70, 239, 0.3);
             border: 1px solid rgba(255, 255, 255, 0.3);
             border-radius: 50%;
@@ -105,13 +102,30 @@
         }
         .btn:active { 
             background: rgba(217, 70, 239, 0.5); 
-            transform: scale(0.85); 
+            transform: scale(0.9); 
         }
-        .d-pad { display: flex; gap: 12px; }
-        .action-btns { display: flex; gap: 12px; }
+        .d-pad { display: flex; gap: 15px; }
+        .action-btns { display: flex; gap: 15px; }
+
+        #loader {
+            position: absolute;
+            inset: 0;
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: #d946ef;
+            z-index: 1000;
+        }
     </style>
 </head>
 <body>
+
+<div id="loader">
+    <div class="text-xl font-bold animate-pulse">LOADING GAME...</div>
+    <div class="text-xs mt-2 opacity-50">Checking for Aunty's Chappals</div>
+</div>
 
 <div id="game-container">
     <div id="ui">
@@ -141,6 +155,7 @@ const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const scoreEl = document.getElementById('score');
 const healthFill = document.getElementById('health-fill');
+const loader = document.getElementById('loader');
 
 const V_WIDTH = 800;
 const V_HEIGHT = 500;
@@ -155,6 +170,41 @@ let score = 0;
 let health = 100;
 let cameraX = 0;
 let gameActive = true;
+
+// Corrected Asset paths (removed the double .png.png)
+const assetSources = {
+    aunty: 'aunty.png',
+    chappal: 'chappal.png',
+    enemy: 'kid.png',
+    bg: 'building_bg.png',
+    chai: 'chai.png'
+};
+
+const images = {};
+let loadedImages = 0;
+const totalImages = Object.keys(assetSources).length;
+
+function loadAssets(callback) {
+    for (let key in assetSources) {
+        images[key] = new Image();
+        images[key].src = assetSources[key];
+        images[key].onload = () => {
+            loadedImages++;
+            if (loadedImages === totalImages) {
+                loader.style.display = 'none';
+                callback();
+            }
+        };
+        images[key].onerror = () => {
+            console.warn(`Failed to load ${key}, using placeholder`);
+            loadedImages++;
+            if (loadedImages === totalImages) {
+                loader.style.display = 'none';
+                callback();
+            }
+        };
+    }
+}
 
 function resize() {
     canvas.width = V_WIDTH;
@@ -180,6 +230,7 @@ window.addEventListener('keyup', e => keys[e.code] = false);
 const mobileKeys = { left: false, right: false, up: false };
 function setupTouchBtn(id, keyName) {
     const btn = document.getElementById(id);
+    if (!btn) return;
     btn.addEventListener('touchstart', (e) => { e.preventDefault(); mobileKeys[keyName] = true; });
     btn.addEventListener('touchend', (e) => { e.preventDefault(); mobileKeys[keyName] = false; });
 }
@@ -190,12 +241,6 @@ document.getElementById('btn-throw').addEventListener('touchstart', (e) => {
     e.preventDefault(); 
     throwChappal(); 
 });
-
-const auntyImg = new Image(); auntyImg.src = 'aunty.png.png';
-const chappalImg = new Image(); chappalImg.src = 'chappal.png.png';
-const enemyImg = new Image(); enemyImg.src = 'kid.png.png';
-const bgImg = new Image(); bgImg.src = 'building_bg.png.png';
-const chaiImg = new Image(); chaiImg.src = 'chai.png.png';
 
 class Player {
     constructor() {
@@ -249,9 +294,9 @@ class Player {
         ctx.translate(-cameraX, 0);
         if (this.facing === -1) {
             ctx.scale(-1, 1);
-            ctx.drawImage(auntyImg, -this.x - this.width, this.y, this.width, this.height);
+            ctx.drawImage(images.aunty, -this.x - this.width, this.y, this.width, this.height);
         } else {
-            ctx.drawImage(auntyImg, this.x, this.y, this.width, this.height);
+            ctx.drawImage(images.aunty, this.x, this.y, this.width, this.height);
         }
         ctx.restore();
     }
@@ -288,7 +333,7 @@ class Chappal {
         ctx.save();
         ctx.translate(this.x + this.w/2 - cameraX, this.y + this.h/2);
         ctx.rotate(this.rotation);
-        ctx.drawImage(chappalImg, -this.w/2, -this.h/2, this.w, this.h);
+        ctx.drawImage(images.chappal, -this.w/2, -this.h/2, this.w, this.h);
         ctx.restore();
     }
 }
@@ -315,9 +360,9 @@ class Enemy {
         ctx.translate(-cameraX, 0);
         if(this.dir === 1) {
              ctx.scale(-1, 1);
-             ctx.drawImage(enemyImg, -this.x - this.w, this.y, this.w, this.h);
+             ctx.drawImage(images.enemy, -this.x - this.w, this.y, this.w, this.h);
         } else {
-             ctx.drawImage(enemyImg, this.x, this.y, this.w, this.h);
+             ctx.drawImage(images.enemy, this.x, this.y, this.w, this.h);
         }
         ctx.restore();
     }
@@ -361,8 +406,8 @@ function throwChappal() {
 
 function drawBackground() {
     const bgX = -(cameraX * 0.3) % V_WIDTH;
-    ctx.drawImage(bgImg, bgX, 0, V_WIDTH, V_HEIGHT);
-    ctx.drawImage(bgImg, bgX + V_WIDTH, 0, V_WIDTH, V_HEIGHT);
+    ctx.drawImage(images.bg, bgX, 0, V_WIDTH, V_HEIGHT);
+    ctx.drawImage(images.bg, bgX + V_WIDTH, 0, V_WIDTH, V_HEIGHT);
 }
 
 function gameLoop() {
@@ -417,7 +462,7 @@ function gameLoop() {
 
     coins.forEach(c => {
         if (!c.collected) {
-            ctx.drawImage(chaiImg, c.x - cameraX, c.y, 35, 35);
+            ctx.drawImage(images.chai, c.x - cameraX, c.y, 35, 35);
             if (player.x < c.x + 35 && player.x + player.width > c.x &&
                 player.y < c.y + 35 && player.y + player.height > c.y) {
                 c.collected = true;
@@ -429,7 +474,10 @@ function gameLoop() {
 
     requestAnimationFrame(gameLoop);
 }
-window.onload = gameLoop;
+
+window.onload = () => {
+    loadAssets(gameLoop);
+};
 </script>
 </body>
 </html>
