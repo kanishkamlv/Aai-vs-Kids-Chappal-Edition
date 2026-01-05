@@ -176,7 +176,7 @@ const assetSources = {
     chappal: 'chappal.png',
     enemy: 'kid.png',
     bg: 'building_bg.png',
-    bg_portrait: 'portrait.png',
+    bg_portrait: 'Portrait.jpg', // Updated to match your uploaded file extension
     chai: 'chai.png'
 };
 
@@ -423,6 +423,7 @@ function drawBackground() {
     const isPortrait = window.innerHeight > window.innerWidth;
     
     let currentBg = images.bg;
+    // Use Portrait.jpg if in portrait mode and the asset is loaded
     if (isPortrait && images.bg_portrait && images.bg_portrait.complete && images.bg_portrait.naturalWidth !== 0) {
         currentBg = images.bg_portrait;
     }
