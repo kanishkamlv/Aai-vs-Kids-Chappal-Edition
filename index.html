@@ -83,8 +83,8 @@
             pointer-events: none;
         }
         .btn {
-            width: 40px;
-            height: 40px;
+            width: 65px;
+            height: 65px;
             background: #000000; /* Solid Black Background */
             border: 2px solid #ffffff; /* White border for visibility */
             border-radius: 50%;
@@ -92,7 +92,7 @@
             justify-content: center;
             align-items: center;
             color: white;
-            font-weight: normal;
+            font-weight: bold;
             user-select: none;
             pointer-events: auto;
             font-size: 18px;
@@ -291,7 +291,7 @@ class Player {
             }
         });
 
-        const floorY = V_HEIGHT - 40;
+        const floorY = V_HEIGHT - 10; // Floor detection shifted down
         if (this.y > floorY - this.height) { this.y = floorY - this.height; this.vy = 0; this.grounded = true; }
         if (this.x < 0) this.x = 0;
         if (this.x > LEVEL_WIDTH - this.width) this.x = LEVEL_WIDTH - this.width;
@@ -385,14 +385,14 @@ class Enemy {
 const player = new Player();
 const chappals = [];
 const enemies = [];
-const platforms = [{x: 0, y: 460, w: LEVEL_WIDTH, h: 40}];
+const platforms = [{x: 0, y: V_HEIGHT - 10, w: LEVEL_WIDTH, h: 10}]; // Thin floor bar
 
 for (let i = 1; i < 45; i++) {
     platforms.push({
         x: i * 220, 
         y: 180 + Math.random() * 200, 
         w: 120 + Math.random() * 150, 
-        h: 20
+        h: 8 // Thin floating platforms
     });
 }
 
