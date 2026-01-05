@@ -72,17 +72,16 @@
             transition: width 0.3s ease;
         }
         .touch-controls {
-    position: absolute;
-    /* Increase this value (e.g., from 30px to 150px) to move buttons UP */
-    bottom: calc(var(--safe-bottom) + 150px); 
-    padding: 0 25px;
-    left: 0;
-    right: 0;
-    display: none;
-    justify-content: space-between;
-    z-index: 100;
-    pointer-events: none;
-}
+            position: absolute;
+            bottom: 200px !important; 
+            padding: 0 25px;
+            left: 0;
+            right: 0;
+            display: none; 
+            justify-content: space-between;
+            z-index: 100;
+            pointer-events: none;
+        }
         .btn {
             width: 60px;
             height: 60px;
@@ -172,16 +171,14 @@ let health = 100;
 let cameraX = 0;
 let gameActive = true;
 
-// Corrected Asset paths (removed the double .png.png)
 const assetSources = {
-    aunty: "aunty.png?v=1",
-    chappal: "chappal.png?v=1",
-    enemy: "kid.png?v=1",
-    bg: "building_bg.png?v=1",
-    portrait: "portrait.png?v=2",  // bump version for updated portrait
-    chai: "chai.png?v=1"
+    aunty: 'aunty.png',
+    chappal: 'chappal.png',
+    enemy: 'kid.png',
+    bg: 'building_bg.png',
+    bg_portrait: 'portrait.png',
+    chai: 'chai.png'
 };
-
 
 
 const images = {};
@@ -409,17 +406,20 @@ function throwChappal() {
 }
 
 function drawBackground() {
-    // Check if the screen is in portrait mode
-    const isPortrait = canvas.height > canvas.width;
-    const currentBg = (isPortrait && images.bg_portrait) ? images.bg_portrait : images.bg;
+    // Check real screen orientation instead of virtual canvas dimensions
+    const isPortrait = window.innerHeight > window.innerWidth;
+    
+    // Fallback to regular bg if portrait image isn't loaded correctly
+    let currentBg = images.bg;
+    if (isPortrait && images.bg_portrait && images.bg_portrait.complete && images.bg_portrait.naturalWidth !== 0) {
+        currentBg = images.bg_portrait;
+    }
     
     const bgX = -(cameraX * 0.3) % V_WIDTH;
-    
-    // Draw the background using the selected image
     ctx.drawImage(currentBg, bgX, 0, V_WIDTH, V_HEIGHT);
     ctx.drawImage(currentBg, bgX + V_WIDTH, 0, V_WIDTH, V_HEIGHT);
 }
-    
+
 function gameLoop() {
     if (!gameActive) {
         ctx.fillStyle = "rgba(0,0,0,0.85)";
