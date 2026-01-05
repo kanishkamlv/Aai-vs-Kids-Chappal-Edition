@@ -72,16 +72,17 @@
             transition: width 0.3s ease;
         }
         .touch-controls {
-            position: absolute;
-            bottom: calc(var(--safe-bottom) + 20px);
-            padding: 0 25px;
-            left: 0;
-            right: 0;
-            display: none;
-            justify-content: space-between;
-            z-index: 100;
-            pointer-events: none;
-        }
+    position: absolute;
+    /* Increase this value (e.g., from 30px to 150px) to move buttons UP */
+    bottom: calc(var(--safe-bottom) + 150px); 
+    padding: 0 25px;
+    left: 0;
+    right: 0;
+    display: none;
+    justify-content: space-between;
+    z-index: 100;
+    pointer-events: none;
+}
         .btn {
             width: 60px;
             height: 60px;
