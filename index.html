@@ -35,7 +35,6 @@
             background: #000;
         }
         canvas {
-            /* Changed background from #87CEEB (sky blue) to #000 (black) */
             background: #000;
             display: block;
             max-width: 100%;
@@ -51,14 +50,13 @@
             justify-content: space-between;
             color: #d946ef;
             font-weight: bold;
-            font-size: clamp(14px, 3.5vw, 20px);
+            font-size: clamp(14px, 3.5vw, 18px);
             text-shadow: 2px 2px #000;
             pointer-events: none;
             z-index: 50;
-            padding: 10px;
         }
         .health-bar-bg {
-            width: 100px;
+            width: 80px;
             height: 10px;
             background: #444;
             border: 1.5px solid #fff;
@@ -72,24 +70,23 @@
             background: #ef4444;
             transition: width 0.3s ease;
         }
-        /* Controls returned to bottom positioning */
         .touch-controls {
             position: absolute;
-            bottom: calc(var(--safe-bottom) + 30px); padding: 0 25px;
-            left: calc(var(--safe-left) + 20px);
-            right: var(--safe-right);
-            width: calc(100% - var(--safe-left) - var(--safe-right));
+            bottom: calc(var(--safe-bottom) + 20px);
+            left: 0;
+            right: 0;
+            padding: 0 var(--safe-left);
             display: none;
             justify-content: space-between;
+            align-items: center;
             z-index: 100;
             pointer-events: none;
-
         }
         .btn {
-            width: 55px;
-            height: 55px;
-            background: rgba(217, 70, 239, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            width: 65px;
+            height: 65px;
+            background: rgba(217, 70, 239, 0.4);
+            border: 2px solid rgba(255, 255, 255, 0.5);
             border-radius: 50%;
             display: flex;
             justify-content: center;
@@ -98,17 +95,16 @@
             font-weight: bold;
             user-select: none;
             pointer-events: auto;
-            font-size: 16px;
-            backdrop-filter: blur(4px);
+            font-size: 24px;
             -webkit-tap-highlight-color: transparent;
-            transition: transform 0.1s;
+            transition: transform 0.1s, background 0.1s;
         }
         .btn:active { 
-            background: rgba(217, 70, 239, 0.5); 
-            transform: scale(0.85); 
+            background: rgba(217, 70, 239, 0.8);
+            transform: scale(1.2); 
         }
-        .d-pad { display: flex; gap: 12px; }
-        .action-btns { display: flex; gap: 12px; }
+        .d-pad { display: flex; gap: 20px; }
+        .action-btns { display: flex; gap: 20px; }
     </style>
 </head>
 <body>
@@ -130,7 +126,7 @@
             <div id="btn-right" class="btn">▶</div>
         </div>
         <div class="action-btns">
-            <div id="btn-jump" class="btn">UP</div>
+            <div id="btn-jump" class="btn">▲</div>
             <div id="btn-throw" class="btn">👞</div>
         </div>
     </div>
@@ -142,8 +138,9 @@ const ctx = canvas.getContext('2d');
 const scoreEl = document.getElementById('score');
 const healthFill = document.getElementById('health-fill');
 
-const V_WIDTH = 800;
-const V_HEIGHT = 500;
+// Fixed Portrait Resolution
+const V_WIDTH = 500;
+const V_HEIGHT = 800;
 
 const GRAVITY = 0.45;
 const JUMP_FORCE = -13;
@@ -155,6 +152,13 @@ let score = 0;
 let health = 100;
 let cameraX = 0;
 let gameActive = true;
+
+// ASSET LOADING - Fixed file paths to match your assets
+const auntyImg = new Image(); auntyImg.src = 'aunty.png';
+const chappalImg = new Image(); chappalImg.src = 'chappal.png';
+const enemyImg = new Image(); enemyImg.src = 'kid.png';
+const bgImg = new Image(); bgImg.src = 'portrait.png'; // Using portrait.png as background
+const chaiImg = new Image(); chaiImg.src = 'chai.png';
 
 function resize() {
     canvas.width = V_WIDTH;
@@ -191,18 +195,12 @@ document.getElementById('btn-throw').addEventListener('touchstart', (e) => {
     throwChappal(); 
 });
 
-const auntyImg = new Image(); auntyImg.src = 'aunty.png.png';
-const chappalImg = new Image(); chappalImg.src = 'chappal.png.png';
-const enemyImg = new Image(); enemyImg.src = 'kid.png.png';
-const bgImg = new Image(); bgImg.src = 'building_bg.png.png';
-const chaiImg = new Image(); chaiImg.src = 'chai.png.png';
-
 class Player {
     constructor() {
         this.width = 60;
         this.height = 80;
         this.x = 100;
-        this.y = 300;
+        this.y = V_HEIGHT - 150;
         this.vx = 0;
         this.vy = 0;
         this.grounded = false;
@@ -232,7 +230,7 @@ class Player {
             }
         });
 
-        const floorY = V_HEIGHT - 40;
+        const floorY = V_HEIGHT - 80; 
         if (this.y > floorY - this.height) { this.y = floorY - this.height; this.vy = 0; this.grounded = true; }
         if (this.x < 0) this.x = 0;
         if (this.x > LEVEL_WIDTH - this.width) this.x = LEVEL_WIDTH - this.width;
@@ -326,26 +324,26 @@ class Enemy {
 const player = new Player();
 const chappals = [];
 const enemies = [];
-const platforms = [{x: 0, y: 460, w: LEVEL_WIDTH, h: 40}];
+const platforms = [{x: 0, y: V_HEIGHT - 80, w: LEVEL_WIDTH, h: 80}];
 
 for (let i = 1; i < 45; i++) {
     platforms.push({
-        x: i * 220, 
-        y: 180 + Math.random() * 200, 
-        w: 120 + Math.random() * 150, 
+        x: i * 300, 
+        y: 250 + Math.random() * 350, 
+        w: 120 + Math.random() * 100, 
         h: 20
     });
 }
 
 for (let i = 0; i < 60; i++) {
-    enemies.push(new Enemy(600 + i * 160, 400, 40 + Math.random() * 120));
+    enemies.push(new Enemy(800 + i * 200, V_HEIGHT - 140, 50 + Math.random() * 100));
 }
 
 const coins = [];
 for (let i = 0; i < 100; i++) {
     coins.push({
-        x: 400 + i * 100, 
-        y: 120 + Math.random() * 250, 
+        x: 400 + i * 150, 
+        y: 200 + Math.random() * 400, 
         collected: false
     });
 }
@@ -360,6 +358,7 @@ function throwChappal() {
 }
 
 function drawBackground() {
+    // Parallax background using portrait.png
     const bgX = -(cameraX * 0.3) % V_WIDTH;
     ctx.drawImage(bgImg, bgX, 0, V_WIDTH, V_HEIGHT);
     ctx.drawImage(bgImg, bgX + V_WIDTH, 0, V_WIDTH, V_HEIGHT);
@@ -370,19 +369,21 @@ function gameLoop() {
         ctx.fillStyle = "rgba(0,0,0,0.85)";
         ctx.fillRect(0,0,V_WIDTH,V_HEIGHT);
         ctx.fillStyle = "white";
-        ctx.font = "bold 28px Arial";
+        ctx.font = "bold 24px Arial";
         ctx.textAlign = "center";
         ctx.fillText("Chhi beta, tumse ye umeed nahi thi!", V_WIDTH/2, V_HEIGHT/2 - 20);
-        ctx.font = "bold 42px Arial";
+        ctx.font = "bold 36px Arial";
         ctx.fillStyle = "#ff4444";
         ctx.fillText("Game Over", V_WIDTH/2, V_HEIGHT/2 + 40);
         return;
     }
     ctx.clearRect(0, 0, V_WIDTH, V_HEIGHT);
+    
     drawBackground();
 
+    // Platforms
+    ctx.fillStyle = 'rgba(0,0,0,0.5)';
     platforms.forEach(p => {
-        ctx.fillStyle = '#000000';
         ctx.fillRect(p.x - cameraX, p.y, p.w, p.h);
     });
 
@@ -429,6 +430,8 @@ function gameLoop() {
 
     requestAnimationFrame(gameLoop);
 }
+
+// Start only when images are loaded or window loads
 window.onload = gameLoop;
 </script>
 </body>
