@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -83,8 +84,8 @@
             pointer-events: none;
         }
         .btn {
-            width: 65px;
-            height: 65px;
+            width: 40px;
+            height: 40px;
             background: #000000; /* Solid Black Background */
             border: 2px solid #ffffff; /* White border for visibility */
             border-radius: 50%;
@@ -92,7 +93,7 @@
             justify-content: center;
             align-items: center;
             color: white;
-            font-weight: bold;
+            font-weight: normal;
             user-select: none;
             pointer-events: auto;
             font-size: 18px;
@@ -176,7 +177,7 @@ const assetSources = {
     chappal: 'chappal.png',
     enemy: 'kid.png',
     bg: 'building_bg.png',
-    bg_portrait: 'Portrait.jpg', // Updated to match your uploaded file extension
+    bg_portrait: 'portrait.png',
     chai: 'chai.png'
 };
 
@@ -291,7 +292,7 @@ class Player {
             }
         });
 
-        const floorY = V_HEIGHT - 10; // Floor detection shifted down
+        const floorY = V_HEIGHT - 40;
         if (this.y > floorY - this.height) { this.y = floorY - this.height; this.vy = 0; this.grounded = true; }
         if (this.x < 0) this.x = 0;
         if (this.x > LEVEL_WIDTH - this.width) this.x = LEVEL_WIDTH - this.width;
@@ -385,14 +386,14 @@ class Enemy {
 const player = new Player();
 const chappals = [];
 const enemies = [];
-const platforms = [{x: 0, y: V_HEIGHT - 10, w: LEVEL_WIDTH, h: 10}]; // Thin floor bar
+const platforms = [{x: 0, y: 460, w: LEVEL_WIDTH, h: 40}];
 
 for (let i = 1; i < 45; i++) {
     platforms.push({
         x: i * 220, 
         y: 180 + Math.random() * 200, 
         w: 120 + Math.random() * 150, 
-        h: 8 // Thin floating platforms
+        h: 20
     });
 }
 
@@ -423,7 +424,6 @@ function drawBackground() {
     const isPortrait = window.innerHeight > window.innerWidth;
     
     let currentBg = images.bg;
-    // Use Portrait.jpg if in portrait mode and the asset is loaded
     if (isPortrait && images.bg_portrait && images.bg_portrait.complete && images.bg_portrait.naturalWidth !== 0) {
         currentBg = images.bg_portrait;
     }
