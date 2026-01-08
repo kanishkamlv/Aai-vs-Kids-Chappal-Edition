@@ -71,9 +71,9 @@
             background: #ef4444;
             transition: width 0.3s ease;
         }
-         .touch-controls {
+        .touch-controls {
             position: absolute;
-            bottom: 200px !important; 
+            bottom: 40px; 
             padding: 0 25px;
             left: 0;
             right: 0;
@@ -117,14 +117,16 @@
             align-items: center;
             color: #d946ef;
             z-index: 1000;
+            text-align: center;
+            padding: 20px;
         }
     </style>
 </head>
 <body>
 
 <div id="loader">
-    <div class="text-xl font-bold animate-pulse">LOADING GAME...</div>
-    <div class="text-xs mt-2 opacity-50">Checking for Aunty's Chappals</div>
+    <div class="text-xl font-bold animate-pulse uppercase tracking-wider">Silaai With Aai Games</div>
+    <div class="text-xs mt-2 opacity-70">Checking for Aai’s Chappals</div>
 </div>
 
 <div id="game-container">
@@ -177,7 +179,7 @@ const assetSources = {
     enemy: 'kid.png',
     bg: 'building_bg.png',
     bg_portrait: 'Portrait.jpg',
-    sunflower: 'chai.png', // Keeping original filename but mapping to sunflower
+    sunflower: 'chai.png', 
 };
 
 const images = {};
@@ -191,16 +193,21 @@ function loadAssets(callback) {
         images[key].onload = () => {
             loadedImages++;
             if (loadedImages === totalImages) {
-                loader.style.display = 'none';
-                callback();
+                // Short delay to ensure user sees the new text
+                setTimeout(() => {
+                    loader.style.display = 'none';
+                    callback();
+                }, 500);
             }
         };
         images[key].onerror = () => {
             console.warn(`Failed to load ${key}, using placeholder`);
             loadedImages++;
             if (loadedImages === totalImages) {
-                loader.style.display = 'none';
-                callback();
+                setTimeout(() => {
+                    loader.style.display = 'none';
+                    callback();
+                }, 500);
             }
         };
     }
